@@ -1,12 +1,15 @@
 import react, { useEffect, useState } from "react";
 import JobCard from "../JobCard/JobCard";
 import "../JobCard/JobCard.css";
+import SelectInput from "../SelectInput/SelectInput";
 
 const CardList = () => {
   const [jobDataList, setJobDataList] = useState([]);
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
+
+  const [rolesList, setRolesList] = useState([]);
+  const [selectedRole, setSelectedRole] = useState([]);
 
   const limit = 10;
   const requestHeaders = new Headers();
@@ -58,9 +61,22 @@ const CardList = () => {
     };
   }, [offset]);
 
+  useEffect(() => {
+    // console.log("selectedRole===", selectedRole);
+  }, [selectedRole]);
+
   return (
     <div>
-      <div>Job List</div>
+      <div className="main-header">Search Jobs</div>
+
+      <div className="main-filter-container">
+        <SelectInput
+          placeHolder="Roles"
+          setPropValue={setSelectedRole}
+          propValue={selectedRole}
+          rolesList={rolesList}
+        />
+      </div>
 
       {jobDataList.length > 0 && (
         <div className="job-list">
