@@ -1,4 +1,6 @@
 import react, { useEffect, useState } from "react";
+import JobCard from "../JobCard/JobCard";
+import "../JobCard/JobCard.css";
 
 const CardList = () => {
   const [jobDataList, setJobDataList] = useState([]);
@@ -61,17 +63,10 @@ const CardList = () => {
       <div>Job List</div>
 
       {jobDataList.length > 0 && (
-        <div>
-          {" "}
-          <ul>
-            {jobDataList.map((job) => (
-              <li key={job.jdUid}>
-                <h2>{job.jobRole}</h2>
-                <h4>{job.jdUid}</h4>
-                <p>{job.jobDetailsFromCompany}</p>
-              </li>
-            ))}
-          </ul>
+        <div className="job-list">
+          {jobDataList.map((job) => (
+            <JobCard job={job} />
+          ))}
         </div>
       )}
 
