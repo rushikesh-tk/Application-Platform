@@ -18,19 +18,6 @@ const MenuProps = {
   },
 };
 
-const names = [
-  "Oliver Hansen",
-  "Van Henry",
-  "April Tucker",
-  "Ralph Hubbard",
-  "Omar Alexander",
-  "Carlos Abbott",
-  "Miriam Wagner",
-  "Bradley Wilkerson",
-  "Virginia Andrews",
-  "Kelly Snyder",
-];
-
 const getStyles = (name, propValue, theme) => {
   return {
     fontWeight:
@@ -41,7 +28,7 @@ const getStyles = (name, propValue, theme) => {
 };
 
 const SelectInput = (props) => {
-  const { placeHolder, setPropValue, propValue } = props;
+  const { placeHolder, setPropValue, propValue, dropDownArray } = props;
 
   const theme = useTheme();
 
@@ -64,9 +51,11 @@ const SelectInput = (props) => {
           onChange={handleChange}
           input={<OutlinedInput label={placeHolder} />}
           MenuProps={MenuProps}
-          style={{ textAlign: "start" }}
+          style={{
+            textAlign: "start",
+          }}
         >
-          {names.map((name) => (
+          {dropDownArray?.map((name) => (
             <MenuItem
               key={name}
               value={name}
