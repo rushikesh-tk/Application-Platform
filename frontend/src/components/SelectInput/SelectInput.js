@@ -51,7 +51,7 @@ const SelectInput = (props) => {
 
     setPropValue((prevFilters) => ({
       ...prevFilters,
-      [typeNameValue]: typeof value === "string" ? value.split(",") : value, // Will add multi selected values here in the state array
+      [typeNameValue]: typeof value === "string" ? value?.split(",") : value, // Will add multi selected values here in the state array
     }));
   };
 

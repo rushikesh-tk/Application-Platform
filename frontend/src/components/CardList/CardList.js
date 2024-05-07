@@ -2,6 +2,8 @@ import react, { useEffect, useState } from "react";
 import JobCard from "../JobCard/JobCard";
 import "../JobCard/JobCard.css";
 import SelectInput from "../SelectInput/SelectInput";
+import { useDispatch, useSelector } from "react-redux";
+import { listJobs } from "../../actions/jobActions";
 
 const rolesListArray = ["frontend", "ios", "android", "tech lead", "backend"];
 const minExpArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -10,7 +12,6 @@ const minBasePayArray = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
 const CardList = () => {
   const [filteredJobData, setFilteredJobData] = useState([]);
-  const [jobDataList, setJobDataList] = useState([]);
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
@@ -21,39 +22,13 @@ const CardList = () => {
     companyName: [],
   });
 
+  const dispatch = useDispatch();
+  const { jobDataList } = useSelector((state) => state.jobDataList);
+
   const limit = 10;
-  const requestHeaders = new Headers();
-
-  const paramsData = JSON.stringify({
-    limit,
-    offset,
-  }); // setting limit and offset initial value
-
-  const requestOptions = {
-    method: "POST",
-    headers: requestHeaders,
-    body: paramsData,
-  };
-
-  const fetchJobs = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(
-        "https://api.weekday.technology/adhoc/getSampleJdJSON", // fetching job data
-        requestOptions
-      );
-      const result = await response.json();
-      const newJobData = result?.jdList;
-      setJobDataList((prev) => [...prev, ...newJobData]);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching job data:", error);
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    fetchJobs();
+    dispatch(listJobs(offset));
 
     const handleScroll = () => {
       if (
@@ -64,10 +39,10 @@ const CardList = () => {
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    document.addEventListener("scroll", handleScroll);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("scroll", handleScroll);
     };
   }, [offset]);
 
@@ -78,6 +53,12 @@ const CardList = () => {
       tempFilteredJobData = tempFilteredJobData.filter((job) =>
         filterObj["roles"].includes(job.jobRole)
       ); // filtering according to selected roles
+    }
+
+    if (filterObj["minExperience"]?.length !== 0) {
+      tempFilteredJobData = tempFilteredJobData.filter(
+        (job) => job.minExp >= filterObj["minExperience"] && job.minExp !== null
+      ); // filtering according to min experience
     }
 
     if (filterObj["jobLocation"]?.length > 0) {
@@ -119,12 +100,6 @@ const CardList = () => {
           .includes(filterObj["companyName"][0].toLowerCase())
       );
     } // filtering wrt company name
-
-    if (filterObj["minExperience"]?.length !== 0) {
-      tempFilteredJobData = tempFilteredJobData.filter(
-        (job) => job.minExp <= filterObj["minExperience"] && job.minExp !== null
-      ); // filtering according to min experience
-    }
 
     setFilteredJobData(tempFilteredJobData);
   };
@@ -189,7 +164,7 @@ const CardList = () => {
         </>
       ) : (
         <div className="job-list">
-          {filteredJobData.map((job, index) => (
+          {filteredJobData?.map((job, index) => (
             <JobCard key={index} job={job} />
           ))}
         </div>
