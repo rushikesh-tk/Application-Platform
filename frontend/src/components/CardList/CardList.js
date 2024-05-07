@@ -3,35 +3,28 @@ import JobCard from "../JobCard/JobCard";
 import "../JobCard/JobCard.css";
 import SelectInput from "../SelectInput/SelectInput";
 
-// const tempOnj = {
-//   jdUid: "cfff35ac-053c-11ef-83d3-06301d0a7178-92010",
-//   jdLink: "https://weekday.works",
-//   jobDetailsFromCompany:
-//     "This is a sample job and you must have displayed it to understand that its not just some random lorem ipsum text but something which was manually written. Oh well, if random text is what you were looking for then here it is: Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages and now in this assignment.",
-//   maxJdSalary: 61,
-//   minJdSalary: null,
-//   salaryCurrencyCode: "USD",
-//   location: "delhi ncr",
-//   minExp: 3,
-//   maxExp: 6,
-//   jobRole: "frontend",
-//   companyName: "Dropbox",
-//   logoUrl: "https://logo.clearbit.com/dropbox.com",
-// };
-
 const rolesListArray = ["frontend", "ios", "android", "tech lead", "backend"];
+const minExpArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const jobLocationArray = [
+  "delhi ncr",
+  "mumbai",
+  "remote",
+  "chennai",
+  "bangalore",
+];
+const minBasePayArray = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
-const CardList = (props) => {
-  const {} = props;
-
+const CardList = () => {
   const [filteredJobData, setFilteredJobData] = useState([]);
   const [jobDataList, setJobDataList] = useState([]);
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState([]);
-  const [filters, setFilter] = useState({
+  const [filters, setFilters] = useState({
     roles: [],
-    minBaseSalrary: "",
+    minExperience: [],
+    jobLocation: [],
+    minBaseSalary: [],
+    companyName: [],
   });
 
   const limit = 10;
@@ -49,7 +42,7 @@ const CardList = (props) => {
   };
 
   const fetchJobs = async () => {
-    // setLoading(true);
+    setLoading(true);
     try {
       const response = await fetch(
         "https://api.weekday.technology/adhoc/getSampleJdJSON", // fetching job data
@@ -58,10 +51,10 @@ const CardList = (props) => {
       const result = await response.json();
       const newJobData = result?.jdList;
       setJobDataList((prev) => [...prev, ...newJobData]);
-      // setLoading(false);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching job data:", error);
-      // setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -84,28 +77,27 @@ const CardList = (props) => {
     };
   }, [offset]);
 
-  const filterUniqueJobRoles = (jobsArray) => {
-    let jobRoles = jobsArray.map((job) => job.jobRole);
+  const filterJobsByRoles = (jobsArray, filterObj) => {
+    let tempFilteredJobData = jobsArray;
 
-    let uniqueJobRoles = jobRoles.filter((value, index, self) => {
-      return self.indexOf(value) === index;
-    });
-
-    return uniqueJobRoles;
-  };
-
-  const filterJobsByRoles = (jobsArray, rolesArray) => {
-    let tempData = jobsArray;
-    if (rolesArray?.length > 0) {
-      tempData = jobsArray.filter((job) => rolesArray.includes(job.jobRole)); // filtering according to selected roles
+    if (filterObj["roles"]?.length > 0) {
+      tempFilteredJobData = tempFilteredJobData.filter((job) =>
+        filterObj["roles"].includes(job.jobRole)
+      ); // filtering according to selected roles
     }
 
-    setFilteredJobData(tempData);
+    if (filterObj["minExperience"]?.length !== 0) {
+      tempFilteredJobData = tempFilteredJobData.filter(
+        (job) => job.minExp <= filterObj["minExperience"] && job.minExp !== null
+      ); // filtering according to min experience
+    }
+
+    setFilteredJobData(tempFilteredJobData);
   };
 
   useEffect(() => {
-    filterJobsByRoles(jobDataList, selectedRole);
-  }, [jobDataList, selectedRole]);
+    filterJobsByRoles(jobDataList, filters);
+  }, [jobDataList, filters]);
 
   return (
     <div className="main-div">
@@ -114,18 +106,31 @@ const CardList = (props) => {
       <div className="main-filter-container">
         <SelectInput
           placeHolder="Roles"
-          setPropValue={setSelectedRole}
-          propValue={selectedRole}
+          setPropValue={setFilters}
+          propValue={filters}
+          typeName="roles"
           dropDownArray={rolesListArray}
+          isMultiple={true}
+        />
+
+        <SelectInput
+          placeHolder="Experience"
+          setPropValue={setFilters}
+          propValue={filters}
+          typeName="minExperience"
+          dropDownArray={minExpArray}
+          isMultiple={false}
         />
       </div>
 
-      {filteredJobData.length > 0 && (
+      {filteredJobData.length > 0 ? (
         <div className="job-list">
           {filteredJobData.map((job, index) => (
             <JobCard job={job} />
           ))}
         </div>
+      ) : (
+        <div>No Jobs Available with Current Filters</div>
       )}
 
       {loading && <div>Loading...</div>}

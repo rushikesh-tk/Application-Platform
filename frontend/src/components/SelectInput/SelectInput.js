@@ -21,22 +21,36 @@ const MenuProps = {
 const getStyles = (name, propValue, theme) => {
   return {
     fontWeight:
-      propValue.indexOf(name) === -1
-        ? theme.typography.fontWeightRegular
-        : theme.typography.fontWeightMedium,
+      typeof propValue == Array
+        ? propValue.indexOf(name) === -1
+          ? theme.typography.fontWeightRegular
+          : theme.typography.fontWeightMedium
+        : propValue,
   };
 };
 
 const SelectInput = (props) => {
-  const { placeHolder, setPropValue, propValue, dropDownArray } = props;
+  const {
+    placeHolder,
+    setPropValue,
+    propValue,
+    typeName,
+    dropDownArray,
+    isMultiple,
+  } = props;
 
+  const [typeNameValue, setTypeNameValue] = React.useState(typeName);
   const theme = useTheme();
 
   const handleChange = (event) => {
     const {
       target: { value },
     } = event;
-    setPropValue(typeof value === "string" ? value.split(",") : value); // Will add multi selected values here in the state array
+
+    setPropValue((prevFilters) => ({
+      ...prevFilters,
+      [typeNameValue]: typeof value === "string" ? value.split(",") : value, // Will add multi selected values here in the state array
+    }));
   };
 
   return (
@@ -46,9 +60,9 @@ const SelectInput = (props) => {
         <Select
           labelId="demo-multiple-name-label"
           id="demo-multiple-name"
-          multiple
-          value={propValue}
-          onChange={handleChange}
+          multiple={isMultiple}
+          value={propValue[typeName]}
+          onChange={(event) => handleChange(event)}
           input={<OutlinedInput label={placeHolder} />}
           MenuProps={MenuProps}
           style={{
@@ -59,7 +73,7 @@ const SelectInput = (props) => {
             <MenuItem
               key={name}
               value={name}
-              style={getStyles(name, propValue, theme)}
+              style={getStyles(name, propValue[typeName], theme)}
             >
               {name}
             </MenuItem>
