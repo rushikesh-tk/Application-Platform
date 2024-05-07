@@ -14,8 +14,10 @@
 }
 
 .main-filter-container{
-    /* background-color: gray; */
     display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
     width: 90%;
 }
 

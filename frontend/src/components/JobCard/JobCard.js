@@ -1,5 +1,6 @@
 import React from "react";
 import "./JobCard.css";
+import { capitalizeWords } from "../../utils/utils";
 
 const JobCard = ({ job }) => {
   const {
@@ -13,13 +14,6 @@ const JobCard = ({ job }) => {
     logoUrl,
   } = job;
 
-  const capitalizeWords = (str) => {
-    return str
-      .split("")
-      .map((char) => char.toUpperCase())
-      .join("");
-  };
-
   return (
     <div className="job-container" key={job.jdUid}>
       <div className="company-title">
@@ -30,18 +24,22 @@ const JobCard = ({ job }) => {
           <div className="job-location"> {capitalizeWords(location)} </div>
         </div>
       </div>
+      {!(!minJdSalary || !maxJdSalary) && (
+        <div className="job-salary">
+          Estimated Salary: ₹{minJdSalary} - {maxJdSalary} LPA
+        </div>
+      )}
 
-      <div className="job-salary">
-        Estimated Salary: ₹{minJdSalary} - {maxJdSalary} LPA
-      </div>
       <div className="description-container">
         <div className="description-header">About Company:</div>
         <div className="description-text">{jobDetailsFromCompany}</div>
       </div>
-      <div className="exp-container">
-        <div className="exp-header">Minimum Experience</div>
-        <div className="exp-text">{minExp} years</div>
-      </div>
+      {minExp && (
+        <div className="exp-container">
+          <div className="exp-header">Minimum Experience</div>
+          <div className="exp-text">{minExp} years</div>
+        </div>
+      )}
     </div>
   );
 };

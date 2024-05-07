@@ -5,14 +5,8 @@ import SelectInput from "../SelectInput/SelectInput";
 
 const rolesListArray = ["frontend", "ios", "android", "tech lead", "backend"];
 const minExpArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-const jobLocationArray = [
-  "delhi ncr",
-  "mumbai",
-  "remote",
-  "chennai",
-  "bangalore",
-];
-const minBasePayArray = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+const jobLocationArray = ["remote", "hybrid", "in-office"];
+const minBasePayArray = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
 const CardList = () => {
   const [filteredJobData, setFilteredJobData] = useState([]);
@@ -86,6 +80,46 @@ const CardList = () => {
       ); // filtering according to selected roles
     }
 
+    if (filterObj["jobLocation"]?.length > 0) {
+      tempFilteredJobData = tempFilteredJobData.filter((job) => {
+        if (filterObj["jobLocation"]?.length === 0) {
+          return true; // if no location is selected, include all jobs
+        }
+
+        return filterObj["jobLocation"].some((selectedLocation) => {
+          if (selectedLocation === "remote" && job.location === "remote") {
+            return true;
+          }
+          if (selectedLocation === "hybrid" && job.location === "hybrid") {
+            return true;
+          }
+          if (
+            selectedLocation === "in-office" &&
+            !["remote", "hybrid"].includes(job.location)
+          ) {
+            return true;
+          }
+          return false;
+        });
+      });
+    }
+
+    if (filterObj["minBaseSalary"]?.length !== 0) {
+      tempFilteredJobData = tempFilteredJobData.filter(
+        (job) =>
+          job.minJdSalary >= filterObj["minBaseSalary"] &&
+          job.minJdSalary !== null
+      ); // filtering according to min experience
+    }
+
+    if (filterObj["companyName"][0]?.length > 0) {
+      tempFilteredJobData = tempFilteredJobData.filter((job) =>
+        job.companyName
+          .toLowerCase()
+          .includes(filterObj["companyName"][0].toLowerCase())
+      );
+    } // filtering wrt company name
+
     if (filterObj["minExperience"]?.length !== 0) {
       tempFilteredJobData = tempFilteredJobData.filter(
         (job) => job.minExp <= filterObj["minExperience"] && job.minExp !== null
@@ -112,7 +146,6 @@ const CardList = () => {
           dropDownArray={rolesListArray}
           isMultiple={true}
         />
-
         <SelectInput
           placeHolder="Experience"
           setPropValue={setFilters}
@@ -121,19 +154,46 @@ const CardList = () => {
           dropDownArray={minExpArray}
           isMultiple={false}
         />
+
+        <SelectInput
+          placeHolder="Job Type"
+          setPropValue={setFilters}
+          propValue={filters}
+          typeName="jobLocation"
+          dropDownArray={jobLocationArray}
+          isMultiple={true}
+        />
+        <SelectInput
+          placeHolder="Min Base Pay"
+          setPropValue={setFilters}
+          propValue={filters}
+          typeName="minBaseSalary"
+          dropDownArray={minBasePayArray}
+          isMultiple={false}
+        />
+
+        <SelectInput
+          placeHolder="Company Name"
+          setPropValue={setFilters}
+          propValue={filters}
+          typeName="companyName"
+        />
       </div>
 
-      {filteredJobData.length > 0 ? (
+      {loading || filteredJobData.length === 0 ? (
+        <>
+          {loading && <div>Loading...</div>}
+          {filteredJobData.length === 0 && (
+            <div>No Jobs Available with Current Filters</div>
+          )}
+        </>
+      ) : (
         <div className="job-list">
           {filteredJobData.map((job, index) => (
-            <JobCard job={job} />
+            <JobCard key={index} job={job} />
           ))}
         </div>
-      ) : (
-        <div>No Jobs Available with Current Filters</div>
       )}
-
-      {loading && <div>Loading...</div>}
     </div>
   );
 };
