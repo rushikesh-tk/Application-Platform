@@ -7,3 +7,5 @@
 ### run : npm i
 
 ### run : npm start
+
+### NOTE : Use firefox for testting
